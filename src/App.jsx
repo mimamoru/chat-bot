@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import './assets/styles/style.css'
-import defaultDataset from './dataset';
-import {AnswersList, Chats} from './components/index'
-import {FormDialog} from "./components/Forms/index";
+import { AnswersList, Chats } from './components/index'
+import { FormDialog } from "./components/Forms/index";
+import { db } from './firebase/index'
 
 export default class App extends React.Component {
   constructor(props) {
@@ -14,7 +14,7 @@ export default class App extends React.Component {
       answers: [],          // 回答コンポーネントに表示するデータ
       chats: [],            // チャットコンポーネントに表示するデータ
       currentId: "init",    // 現在の質問ID
-      dataset: defaultDataset,          // 質問と回答のデータセット
+      dataset: {},          // 質問と回答のデータセット
       open: false           // 問い合わせフォーム用モーダルの開閉を管理
     }
   }
@@ -39,7 +39,9 @@ export default class App extends React.Component {
   handleClose = () => {
     this.setState({ open: false })
   };
-
+  initDataset = (dataset) => {
+    this.setState({dataset: dataset});
+}
   selectAnswer = (selectedAnswer, nextQuestionId) => {
     console.log(selectedAnswer)
     console.log(nextQuestionId)
@@ -82,15 +84,22 @@ export default class App extends React.Component {
 
   }
 
+  // 最初の質問をチャットエリアに表示する
   componentDidMount() {
-    this.selectAnswer("", this.state.currentId);
-  }
+    (async () => {
+      const dataset = this.state.dataset;
 
-  componentDidUpdate() {
-    const scrollArea = document.getElementById('scroll-area');
-    if (scrollArea) {
-      scrollArea.scrollTop = scrollArea.scrollHeight;
-    }
+      // Fetch questions dataset from Firestore
+      await db.collection('questions').get().then(snapshots => {
+        snapshots.forEach(doc => {
+          dataset[doc.id] = doc.data()
+        })
+      });
+
+      this.initDataset(dataset)
+      const initAnswer = "";
+      this.selectAnswer(initAnswer, this.state.currentId)
+    })();
   }
   render() {
     // console.log(this.state.chats);
@@ -99,7 +108,7 @@ export default class App extends React.Component {
         <div className="c-box">
           <Chats chats={this.state.chats} />
           <AnswersList select={this.selectAnswer} answers={this.state.answers} />
-          <FormDialog open={this.state.open} handleOpen={this.handleOpen} handleClose={this.handleClose}/>
+          <FormDialog open={this.state.open} handleOpen={this.handleOpen} handleClose={this.handleClose} />
         </div>
       </section>
     );
