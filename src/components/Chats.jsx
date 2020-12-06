@@ -1,7 +1,7 @@
-import React, {useState, useCallback, useEffect} from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import List from '@material-ui/core/List';
-import {Chat} from './index'
-import {createStyles, makeStyles} from "@material-ui/core/styles";
+import { Chat } from './index'
+import { createStyles, makeStyles } from "@material-ui/core/styles";
 
 
 const useStyles = makeStyles(() =>
@@ -14,12 +14,15 @@ const useStyles = makeStyles(() =>
     }),
 );
 
-const Chats = (props)=>{
-    //const classes = useStyles();
-    return(
-        <>
-        <Chat/>
-        </>
+const Chats = (props) => {
+    const classes = useStyles();
+    return (
+        <List className={classes.chats}>
+            {props.chats.map((e, i) => {
+                return <Chat key={i.toString()} type={e.type} text={e.text} />
+            })}
+        </List>
+
     )
 }
 

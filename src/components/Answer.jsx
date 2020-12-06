@@ -20,7 +20,7 @@ const useStyles = makeStyles(() =>
 const Answer = (props) => {
     const classes = useStyles();
     return (
-        <Button className={classes.button} variant="outlined" >{props.answer.content}</Button>
+        <Button className={classes.button} onClick={()=>props.select(props.content,props.nextId)} variant="outlined" >{props.content}</Button>
     );
 
 };
